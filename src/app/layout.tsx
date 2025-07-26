@@ -59,8 +59,8 @@ export default function RootLayout({
               <main className='w-full'>
                 <SignedIn>
                   <SidebarTrigger className='absolute top-13 pl-4' />
-                </SignedIn>
                 {children}
+                </SignedIn>
               </main>
             </div>
           </SidebarProvider>

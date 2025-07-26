@@ -11,13 +11,13 @@ export default function Home() {
         {/* Column 1 */}
         <div className="grid grid-rows-2 gap-6">
           {/* Welcome Card */}
-          <div className="flex flex-col justify-center items-start bg-red-400 text-white p-8 rounded shadow-2xl h-full">
+          <div className="flex flex-col justify-center items-start bg-red-400 text-white p-8 rounded shadow-lg h-full">
             <h2 className="text-2xl font-bold mb-2">Hi, Nithish</h2>
             <p className="text-lg">A fresh Dashboard greets you today!</p>
           </div>
 
           {/* Player Prompt Card */}
-          <div className="bg-white rounded-lg shadow-2xl p-8 flex flex-col justify-center h-full">
+          <div className="bg-white rounded-lg shadow-lg p-8 flex flex-col justify-center h-full">
             <h3 className="text-lg font-bold text-black mb-4">Start with a player for your screens</h3>
             <p className="mb-2 font-bold text-red-500">I need a player</p>
             <p className="mb-2 bg-slate-100 p-2 rounded">Subscribe to our Annual Plan & get FREE Yodeck Players for all your screens!</p>
@@ -30,7 +30,7 @@ export default function Home() {
         {/* Column 2 */}
         <div className="grid grid-rows-1 lg:grid-rows-2 gap-6">
           {/* Screen Status Card */}
-          <div className="bg-white rounded shadow-2xl p-8 flex flex-col h-full">
+          <div className="bg-white rounded shadow-lg p-8 flex flex-col h-full">
             <h3 className="text-lg font-bold mb-6">Screen Status</h3>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
@@ -52,7 +52,7 @@ export default function Home() {
         </div>
 
         {/* Column 3 - Screen Location */}
-        <div className="bg-white rounded shadow-2xl flex flex-col h-full">
+        <div className="bg-white rounded shadow-lg flex flex-col h-full">
           <div className="p-8 flex flex-col h-full">
             <h3 className="text-lg font-bold mb-4">Screen Location</h3>
             <div className="flex-1 bg-amber-400 rounded"></div>

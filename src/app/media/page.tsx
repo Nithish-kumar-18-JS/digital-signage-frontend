@@ -1,9 +1,31 @@
 'use client'
-import { Image, Video, Radio, FileText, StickyNote } from "lucide-react"
+import { Image, Video, Radio, FileText, StickyNote, PlusCircle } from "lucide-react"
 import Link from "next/link"
 import MediaLibraryEmpty from "@/components/media/mediaLibraryEmpty"
+import { AddMediaModal } from "@/components/models/AddMediaModal"
+import { DataTable } from "./data-table"
+import { columns } from "./columns"
+import { useSelector } from "react-redux"
+import { RootState } from "@/lib/redux/store"
+import mediaApi from "@/app/apis/media"
+import { useEffect } from "react"
+import { useAuth } from "@clerk/nextjs"
+import { setMediaList } from "@/lib/redux/slice/mediaSlice"
+import { useDispatch } from "react-redux"
 
 export default function MediaLibrary() {
+  const mediaList:any = useSelector((state: RootState) => state.media)
+  const {getAllMedia} = mediaApi()
+  const {getToken} = useAuth()
+  const dispatch = useDispatch()
+  useEffect(() => {
+    const fetchMedia = async () => {
+        const token = await getToken()
+        const data = await getAllMedia(token, "IMAGE")
+        dispatch(setMediaList(data))
+    }
+    fetchMedia()
+}, [])
   const mediaLibrary = [
     {
       title: "Images",
@@ -50,7 +72,18 @@ export default function MediaLibrary() {
           </Link>
         ))}
       </main>
-      <MediaLibraryEmpty />
+      {mediaList.length > 0 && (
+        <>
+        <div className="flex items-center gap-2 mt-4">
+                <input type="text" placeholder="Search" className="w-[80%] p-2 border border-gray-300 rounded" />
+                <button className="bg-blue-500 text-white px-2 py-2 rounded">Search</button>
+            </div> 
+            <div className="overflow-x-auto mt-10">
+                <DataTable columns={columns} data={mediaList}/>
+            </div>
+        </>
+      )}
+      {mediaList.length === 0 && <MediaLibraryEmpty />}
     </div>
   )
 }

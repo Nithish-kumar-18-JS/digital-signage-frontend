@@ -43,11 +43,32 @@ const getAllMedia = async (token: string | null,type?: string) => {
     }
 };
 
+const deleteMedia = async (id: string,token: string | null) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/media/delete-media?id=${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to delete media");
+      }
+  
+      return response.json();
+    } catch (error) {
+      console.error("Failed to delete media:", error);
+      throw error;
+    }
+};
+
 
 const mediaApi = () => {
     return {
         addMedia,
-        getAllMedia
+        getAllMedia,
+        deleteMedia
     }
 }
 

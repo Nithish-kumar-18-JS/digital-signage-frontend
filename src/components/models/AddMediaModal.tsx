@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAuth } from "@clerk/nextjs"
 import { useForm } from "react-hook-form"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import mediaApi from "@/app/apis/media"
 import { useDispatch } from "react-redux"
 import { addMediaData } from "@/lib/redux/slice/mediaSlice"
@@ -22,10 +22,12 @@ export function AddMediaModal({
   children,
   title,
   description,
+  data,
 }: {
   children: React.ReactNode
   title: string
   description: string
+  data?: any
 }) {
   interface FormValues {
     name: string
@@ -43,6 +45,7 @@ export function AddMediaModal({
   const [loading, setLoading] = useState(false)
   const {addMedia } = mediaApi()
   const dispatch = useDispatch()
+  const form = useForm<FormValues>()
   const onSubmit = async (data: FormValues) => {
     const token = await getToken()
     const file = data.image[0] // ✅ extract the first file
@@ -63,6 +66,12 @@ export function AddMediaModal({
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (data) {
+      form.setValue("name", data.name)
+    }
+  }, [data])
 
   return (
     <Dialog>

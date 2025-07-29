@@ -1,16 +1,15 @@
 import { type Metadata } from 'next'
 import {
   ClerkProvider,
-  SignInButton,
-  SignUpButton,
   SignedIn,
   SignedOut,
-  UserButton,
 } from '@clerk/nextjs'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
+import Header from '@/components/header'
+import { ReduxProvider } from '@/app/redux-provider'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -35,38 +34,29 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          {/* Header, always on top */}
-          <header className="flex justify-end items-center p-4 gap-4 h-16">
-            <SignedOut>
-              <SignInButton />
-              <SignUpButton>
-                <button className="bg-[#6c47ff] text-ceramic-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer">
-                  Sign Up
-                </button>
-              </SignUpButton>
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </header>
-
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>          
+          {/* Fixed Header */}
+          <ReduxProvider>
+          <div className='w-full fixed top-0 z-50 h-16'>
+            <Header />
+          </div>
+          <div>
           <SidebarProvider>
-            <div className="flex w-full">
+            <div className="flex pt-16 w-full">
               <SignedIn>
                 <AppSidebar />
               </SignedIn>
-              <main className='w-full'>
+              <main className="w-full max-w-7xl mx-auto px-4 relative">
                 <SignedIn>
-                  <SidebarTrigger className='absolute top-13 pl-4' />
-                {children}
+                  {children}
                 </SignedIn>
               </main>
             </div>
-          </SidebarProvider>
+          </SidebarProvider> 
+          </div>
+          </ReduxProvider>
         </body>
       </html>
     </ClerkProvider>
   )
 }
-

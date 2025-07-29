@@ -1,9 +1,12 @@
 'use client'
-
+import { useSelector } from 'react-redux'
+import { RootState } from '@/lib/redux/store'
 export const Dashboard = () => {
-    return (<main className="grid grid-cols-1 lg:grid-rows-2 gap-6 p-4 h-auto">
+    const user = useSelector((state: RootState) => state.user)
+    console.log(user)
+    return (<main className="grid grid-cols-1 lg:grid-rows-2 gap-6 p-0 h-auto">
         {/* Header */}
-        <header className="h-[58px] p-2">
+        <header className="h-[58px] p-0">
             <h1 className="text-2xl font-bold pt-4 pl-2">Dashboard</h1>
         </header>
 
@@ -13,19 +16,28 @@ export const Dashboard = () => {
             <div className="grid grid-rows-2 gap-6">
                 {/* Welcome Card */}
                 <div className="flex flex-col justify-center items-start bg-red-400 text-white p-8 rounded shadow-lg h-full">
-                    <h2 className="text-2xl font-bold mb-2">Hi, Nithish</h2>
+                    <h2 className="text-xl font-bold mb-2">Hi, {user.firstName} {user.lastName}</h2>
                     <p className="text-lg">A fresh Dashboard greets you today!</p>
                 </div>
 
                 {/* Player Prompt Card */}
                 <div className="bg-white rounded-lg shadow-lg p-8 flex flex-col justify-center h-full">
-                    <h3 className="text-lg font-bold text-black mb-4">Start with a player for your screens</h3>
-                    <p className="mb-2 font-bold text-red-500">I need a player</p>
-                    <p className="mb-2 bg-slate-100 p-2 rounded">Subscribe to our Annual Plan & get FREE Yodeck Players for all your screens!</p>
-                    <p className="mb-4 bg-slate-100 p-2 rounded">Buy a Yodeck Player from $79.</p>
-                    <p className="mb-2 font-bold text-red-500">I have a player</p>
-                    <p className="bg-slate-100 p-2 rounded">Add Screen to register your device.</p>
+                <h3 className="text-lg font-bold text-black mb-4">Get started with a player for your screens</h3>
+                
+                <p className="mb-2 font-bold text-green-600">I need a player</p>
+                <p className="mb-2 bg-slate-100 p-2 rounded">
+                    Use our open-source player to stream content to any compatible device.
+                </p>
+                <p className="mb-4 bg-slate-100 p-2 rounded">
+                    Self-host or deploy using Docker, Raspberry Pi, or your preferred stack.
+                </p>
+
+                <p className="mb-2 font-bold text-green-600">I have a player</p>
+                <p className="bg-slate-100 p-2 rounded">
+                    Add your screen to start registering and managing your device via the dashboard.
+                </p>
                 </div>
+
             </div>
 
             {/* Column 2 */}
@@ -43,7 +55,7 @@ export const Dashboard = () => {
                         ].map(({ label, value }) => (
                             <div key={label} className="bg-slate-100 rounded p-4 flex flex-col items-center justify-center">
                                 <span className="text-lg font-bold">{label}</span>
-                                <span className="text-2xl font-bold">{value}</span>
+                                <span className="text-xl font-bold">{value}</span>
                             </div>
                         ))}
                     </div>
@@ -53,7 +65,7 @@ export const Dashboard = () => {
             </div>
 
             {/* Column 3 - Screen Location */}
-            <div className="bg-white rounded shadow-lg flex flex-col h-full">
+            <div className="bg-white rounded shadow-lg flex flex-col h-[]">
                 <div className="p-8 flex flex-col h-full">
                     <h3 className="text-lg font-bold mb-4">Screen Location</h3>
                     <div className="flex-1 bg-amber-400 rounded"></div>

@@ -4,12 +4,12 @@ import {Dashboard} from "@/components/pages/dashboard"
 import { useAuth } from "@clerk/clerk-react";
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-
+import { useDispatch } from 'react-redux'
+import { storeUser } from '@/lib/redux/slice/userSlice'
 export default function Home() {
   const {isLoaded , isSignedIn , user } = useUser()
   const {getToken} = useAuth()
-  const [ token , setToken ] = useState<any>(null)
-  
+  const dispatch = useDispatch()  
   useEffect(()=>{
     
     if(!isSignedIn){
@@ -25,7 +25,7 @@ export default function Home() {
         }
       })
       const data = await res.json()
-      console.log(data)
+      dispatch(storeUser(data))
     }
 
     fetchUser()

@@ -4,28 +4,123 @@ import Link from "next/link"
 import MediaLibraryEmpty from "@/components/media/mediaLibraryEmpty"
 import { AddMediaModal } from "@/components/models/AddMediaModal"
 import { DataTable } from "./data-table"
-import { columns } from "./columns"
 import { useSelector } from "react-redux"
 import { RootState } from "@/lib/redux/store"
 import mediaApi from "@/app/apis/media"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useAuth } from "@clerk/nextjs"
-import { setMediaList } from "@/lib/redux/slice/mediaSlice"
+import { deleteMediaData, setMediaList } from "@/lib/redux/slice/mediaSlice"
 import { useDispatch } from "react-redux"
+import { ColumnDef } from "@tanstack/react-table"
+import { GlobalDialog } from "@/components/models/GlobalDialog"
 
 export default function MediaLibrary() {
-  const mediaList:any = useSelector((state: RootState) => state.media)
-  const {getAllMedia} = mediaApi()
-  const {getToken} = useAuth()
+  const mediaList: any = useSelector((state: RootState) => state.media)
+  const { getAllMedia } = mediaApi()
+  const { getToken } = useAuth()
   const dispatch = useDispatch()
+  const [token,setToken] = useState<string | null>(null)
+  type ImageLibrary = {
+    id: string
+    preview: string
+    name: string
+    url: string
+    type: string
+  }
+
+  const getImagePreview = (type: string, url: string, name: string) => {
+    switch (type) {
+      case "IMAGE":
+        return <img className="w-12 h-12" src={url} alt={name} />
+      case "VIDEO":
+        return <img className="w-12 h-12" src={'/youtube.png'} alt={name} />
+      case "AUDIO":
+        return <img className="w-12 h-12" src={'/audio-waves.png'} alt={name} />
+      case "DOCUMENT":
+        return <img className="w-12 h-12" src={'/google-docs.png'} alt={name} />
+      default:
+        return <img className="w-12 h-12" src={'/content-writing.png'} alt={name} />
+    }
+  }
+
+  const handleDeletMedia = async (id: string) => {
+    dispatch(deleteMediaData(id))
+   try {
+    const token = await getToken()
+    const {deleteMedia} = mediaApi()
+    const data = await deleteMedia(id,token)
+    console.log(data)
+   }
+   catch (error) {
+    console.log(error)
+   }
+
+  }
+
+  const columns: ColumnDef<ImageLibrary>[] = [
+    {
+      accessorKey: "id",
+      header: "ID",
+      cell: ({ row }) => row.original.id,
+
+    },
+    {
+      accessorKey: "preview",
+      header: "Preview",
+      cell: ({ row }) => (
+        getImagePreview(row.original.type, row.original.url, row.original.name)
+      )
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => row.original.name,
+    },
+    {
+      accessorKey: "type",
+      header: "Type",
+      cell: ({ row }) => row.original.type,
+    },
+    {
+      accessorKey: "url",
+      header: "URL",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-truncate overflow-hidden max-w-[200px]">{row.original.url}</p>
+        </div>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <AddMediaModal title={`Edit ${row.original.type}`} data={row.original}>
+            Edit
+          </AddMediaModal>
+          <GlobalDialog
+            title={`Delete ${row.original.type}`}
+            description={`Are you sure you want to delete this ${row.original.type}?`}
+            action={() => handleDeletMedia(row.original.id)}
+            confirmText="Delete"
+            cancelText="Cancel"
+          >
+            Delete
+          </GlobalDialog>
+        </div>
+      ),
+    },
+  ]
+
   useEffect(() => {
     const fetchMedia = async () => {
-        const token = await getToken()
-        const data = await getAllMedia(token, "IMAGE")
-        dispatch(setMediaList(data))
+      const token = await getToken()
+      setToken(token)
+      const data = await getAllMedia(token, "IMAGE")
+      dispatch(setMediaList(data))
     }
     fetchMedia()
-}, [])
+  }, [])
   const mediaLibrary = [
     {
       title: "Images",
@@ -74,13 +169,13 @@ export default function MediaLibrary() {
       </main>
       {mediaList.length > 0 && (
         <>
-        <div className="flex items-center gap-2 mt-4">
-                <input type="text" placeholder="Search" className="w-[80%] p-2 border border-gray-300 rounded" />
-                <button className="bg-blue-500 text-white px-2 py-2 rounded">Search</button>
-            </div> 
-            <div className="overflow-x-auto mt-10">
-                <DataTable columns={columns} data={mediaList}/>
-            </div>
+          <div className="flex items-center gap-2 mt-4">
+            <input type="text" placeholder="Search" className="w-[80%] p-2 border border-gray-300 rounded" />
+            <button className="bg-blue-500 text-white px-2 py-2 rounded">Search</button>
+          </div>
+          <div className="overflow-x-auto mt-10">
+            <DataTable columns={columns} data={mediaList} />
+          </div>
         </>
       )}
       {mediaList.length === 0 && <MediaLibraryEmpty />}

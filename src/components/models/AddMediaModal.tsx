@@ -1,3 +1,4 @@
+'use client'
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -26,7 +27,7 @@ export function AddMediaModal({
 }: {
   children: React.ReactNode
   title: string
-  description: string
+  description?: string
   data?: any
 }) {
   interface FormValues {
@@ -40,7 +41,7 @@ export function AddMediaModal({
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<FormValues>()
+    } = useForm<FormValues>()
 
   const [loading, setLoading] = useState(false)
   const {addMedia } = mediaApi()
@@ -69,15 +70,19 @@ export function AddMediaModal({
 
   useEffect(() => {
     if (data) {
-      form.setValue("name", data.name)
+      reset({
+        name: data.name ?? "",
+        image: undefined, // file inputs must be set manually by user
+      })
     }
-  }, [data])
+  }, [data, reset])
+  
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button
-          className="bg-blue-500 text-white px-2 py-3 rounded hover:bg-blue-600"
+          className="bg-blue-500 text-white px-2 py-3 z-10 rounded hover:bg-blue-600"
           variant="default"
         >
           {children}
@@ -95,7 +100,7 @@ export function AddMediaModal({
               <Input
                 id="name"
                 {...register("name", { required: "Name is required" })}
-              />
+                />
               {errors.name && (
                 <p className="text-sm text-red-500">{errors.name.message}</p>
               )}

@@ -23,8 +23,14 @@ const mediaSlice = createSlice({
       addMediaData: (state, action: PayloadAction<MediaItem>) => {
         state.push(action.payload) // adds one item to the list
       },
+      deleteMediaData: (state, action: PayloadAction<string>) => {
+        state = state.filter((item) => item.id !== action.payload)
+      },
+      editMediaData: (state, action: PayloadAction<MediaItem>) => {
+        state = state.map((item) => item.id === action.payload.id ? action.payload : item)
+      }
     },
   })
 
-export const { setMediaList, addMediaData } = mediaSlice.actions
+export const { setMediaList, addMediaData, deleteMediaData, editMediaData } = mediaSlice.actions
 export default mediaSlice.reducer

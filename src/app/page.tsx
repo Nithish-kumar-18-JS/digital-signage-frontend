@@ -18,7 +18,7 @@ export default function Home() {
     
     const fetchUser = async () => {
       const token = await getToken()
-      const res = await fetch("http://localhost:3000/api/user/me", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/me`, {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`

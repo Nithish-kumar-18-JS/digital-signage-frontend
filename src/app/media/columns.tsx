@@ -64,9 +64,7 @@ export const columns: ColumnDef<ImageLibrary>[] = [
         cell: ({ row }) => (
             <div className="flex items-center gap-2">
                 <AddMediaModal title={`Edit ${row.original.type}`} description={`Edit the ${row.original.type}`} data={row.original}>
-                    <button className="bg-blue-500 text-white px-2 py-1 rounded">
                         Edit
-                    </button>
                 </AddMediaModal>
                 <button className="bg-red-500 text-white px-2 py-1 rounded">
                     Delete

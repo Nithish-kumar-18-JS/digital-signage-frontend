@@ -16,22 +16,22 @@ import { GlobalDialog } from "@/components/models/GlobalDialog"
 import useDebouncedSearch from "@/hooks/useDebouncedSearch"
 import { toast } from "react-toastify"
 
-export const getImagePreview = (type: string, url: string, name: string) => {
-  switch (type) {
-    case "IMAGE":
-      return <img className="w-12 h-12" src={url} alt={name} />
-    case "VIDEO":
-      return <img className="w-12 h-12" src={'/youtube.png'} alt={name} />
-    case "AUDIO":
-      return <img className="w-12 h-12" src={'/audio-waves.png'} alt={name} />
-    case "DOCUMENT":
-      return <img className="w-12 h-12" src={'/google-docs.png'} alt={name} />
-    default:
-      return <img className="w-12 h-12" src={'/content-writing.png'} alt={name} />
-  }
-}
 
 export default function MediaLibrary() {
+  const getImagePreview = (type: string, url: string, name: string) => {
+    switch (type) {
+      case "IMAGE":
+        return <img className="w-12 h-12" src={url} alt={name} />
+      case "VIDEO":
+        return <img className="w-12 h-12" src={'/youtube.png'} alt={name} />
+      case "AUDIO":
+        return <img className="w-12 h-12" src={'/audio-waves.png'} alt={name} />
+      case "DOCUMENT":
+        return <img className="w-12 h-12" src={'/google-docs.png'} alt={name} />
+      default:
+        return <img className="w-12 h-12" src={'/content-writing.png'} alt={name} />
+    }
+  }
   const mediaList: any = useSelector((state: RootState) => state.media)
   const { getAllMedia , searchMedia , deleteMedia } = mediaApi()
   const { getToken } = useAuth()

@@ -21,7 +21,7 @@
       children: React.ReactNode
       title: string
       description: string
-      action: () => void
+      action: (event: React.FormEvent) => void
       confirmText: string
       cancelText: string
     }) {    
@@ -36,7 +36,7 @@
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
-            <form className="flex flex-col gap-4" onSubmit={action}>
+            <form className="flex flex-col gap-4" onSubmit={(event) => action(event)}>
               <DialogHeader>
                 <DialogTitle>{title}</DialogTitle>
                 <DialogDescription>{description}</DialogDescription>

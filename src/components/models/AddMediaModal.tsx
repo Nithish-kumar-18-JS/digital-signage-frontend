@@ -14,25 +14,32 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAuth } from "@clerk/nextjs"
 import { useForm } from "react-hook-form"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import mediaApi from "@/app/apis/media"
 import { useDispatch } from "react-redux"
-import { addMediaData } from "@/lib/redux/slice/mediaSlice"
+import { addMediaData, editMediaData } from "@/lib/redux/slice/mediaSlice"
+import { Trash, XIcon } from "lucide-react"
+import { toast } from "react-toastify"
+import { cn } from "@/lib/utils"
 
 export function AddMediaModal({
   children,
   title,
   description,
   data,
+  className,
+  fetchMedia,
 }: {
   children: React.ReactNode
   title: string
   description?: string
   data?: any
+  className?: string
+  fetchMedia?: () => void
 }) {
   interface FormValues {
     name: string
-    image: FileList
+    file: FileList
   }
 
   const { getToken } = useAuth()
@@ -44,25 +51,65 @@ export function AddMediaModal({
     } = useForm<FormValues>()
 
   const [loading, setLoading] = useState(false)
-  const {addMedia } = mediaApi()
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const {addMedia,uploadMedia,editMedia } = mediaApi()
   const dispatch = useDispatch()
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDialogElement>(null)
   const form = useForm<FormValues>()
-  const onSubmit = async (data: FormValues) => {
+
+  const editMediaSubmit = async (fromData: FormValues) => {
     const token = await getToken()
-    const file = data.image[0] // ✅ extract the first file
+    const file = fromData.file[0] // ✅ extract the first file
 
     if (!file) {
       console.error("No file selected")
       return
     }
+    if (!data) {
+      console.error("No data selected")
+      return
+    }
 
     try {
       setLoading(true)
-      const result = await addMedia(data.name, file,"IMAGE",token)
-      dispatch(addMediaData(result))
+      const result = await editMedia(fromData.name, previewUrl!,"IMAGE",token,data.id)
+      dispatch(editMediaData(result))
       reset()
+      toast.success(`${title} edited successfully`)
+      setOpen(false)
+      fetchMedia?.()
     } catch (err) {
       console.error("Upload error:", err)
+      toast.error(`${title} edit failed`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const onSubmit = async (fromData: FormValues) => {
+    const token = await getToken()
+    const file = fromData.file[0] // ✅ extract the first file
+
+    if (!file) {
+      console.error("No file selected")
+      return
+    }
+    if (data) {
+      editMediaSubmit(fromData)
+      return
+    }
+    try {
+      setLoading(true)
+      const result = await addMedia(fromData.name, previewUrl!,"IMAGE",token)
+      dispatch(addMediaData(result))
+      reset()
+      toast.success(`${title} added successfully`)
+      setOpen(false)
+      fetchMedia?.()
+    } catch (err) {
+      console.error("Upload error:", err)
+      toast.error(`${title} upload failed`)
     } finally {
       setLoading(false)
     }
@@ -70,20 +117,32 @@ export function AddMediaModal({
 
   useEffect(() => {
     if (data) {
+      console.log(data)
       reset({
         name: data.name ?? "",
-        image: undefined, // file inputs must be set manually by user
+        file: data.url, // file inputs must be set manually by user
       })
+      setPreviewUrl(data.url)
     }
   }, [data, reset])
   
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const token = await getToken()
+      const result = await uploadMedia(token!, file)
+      const imageUrl = result.url
+      setPreviewUrl(imageUrl)
+    }
+  }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          className="bg-blue-500 text-white px-2 py-3 z-10 rounded hover:bg-blue-600"
+          className={cn("bg-blue-500 text-white px-2 py-3 z-10 rounded hover:bg-blue-600",className)}
           variant="default"
+          onClick={() => setOpen(true)}
         >
           {children}
         </Button>
@@ -105,21 +164,37 @@ export function AddMediaModal({
                 <p className="text-sm text-red-500">{errors.name.message}</p>
               )}
             </div>
+            {!previewUrl && (
             <div className="grid gap-3">
-              <Label htmlFor="image">Image</Label>
+              <Label htmlFor="file">File</Label>
               <Input
                 type="file"
-                id="image"
+                id="file"
                 accept="image/*"
-                {...register("image", {
+                {...register("file", {
                   validate: (fileList) =>
                     fileList.length > 0 || "Please select a file",
+                  onChange: (e) => {
+                    if (handleImageChange) {
+                      handleImageChange(e);
+                    }
+                  }
                 })}
               />
-              {errors.image && (
-                <p className="text-sm text-red-500">{errors.image.message}</p>
+              {errors.file && (
+                <p className="text-sm text-red-500">{errors.file.message}</p>
               )}
             </div>
+            )}
+            {previewUrl && (
+              <div className="grid gap-3">
+                <Label htmlFor="file"></Label>
+                <div className="flex justify-end">
+                <Trash className="w-6 h-6 cursor-pointer hover:text-red-500" onClick={() => setPreviewUrl(null)} />
+                </div>
+                <img src={previewUrl} alt="Preview" className="w-full max-h-60 object-contain" />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <DialogClose asChild>
@@ -128,7 +203,7 @@ export function AddMediaModal({
               </Button>
             </DialogClose>
             <Button type="submit" disabled={loading}>
-              {loading ? "Uploading..." : "Add Image"}
+              {loading ? "Uploading..." : `${data ? "Edit" : "Add "}`}
             </Button>
           </DialogFooter>
         </form>

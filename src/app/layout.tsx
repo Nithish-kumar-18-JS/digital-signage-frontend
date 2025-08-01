@@ -14,6 +14,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Footer from '@/components/footer'
 import { ThemeProvider } from '@/components/theme-provider'
+import LandingPage from '@/components/landingPage'
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -43,6 +44,8 @@ export default function RootLayout({
           <ReduxProvider>
           <div className='w-full fixed top-0 z-50 h-16'>
             <Header />
+            {/* <LandingPage/> */}
+            <Footer/>
           </div>
           <div>
           <SidebarProvider>
@@ -58,6 +61,9 @@ export default function RootLayout({
             </div>
             <Footer/>
           </SidebarProvider> 
+          <SignedOut>
+                  <LandingPage/>
+                </SignedOut>
           </div>
           <ToastContainer/>
           </ReduxProvider>

@@ -1,12 +1,12 @@
 'use client'
 
 import { Dashboard } from "@/components/pages/dashboard"
-import LandingPage from "@/components/landingPage"
 import { useAuth } from "@clerk/nextjs"
 import { useUser } from "@clerk/nextjs"
 import { useEffect } from "react"
 import { useDispatch } from "react-redux"
 import { storeUser } from "@/lib/redux/slice/userSlice"
+import LandingPage from "@/components/landingPage"
 
 export default function Home() {
   const { isLoaded, isSignedIn, user } = useUser()
@@ -38,6 +38,5 @@ export default function Home() {
   if (!isLoaded) {
     return <div className="p-6 text-muted-foreground">Loading user info...</div>
   }
-
-  return isSignedIn ? <Dashboard /> : <LandingPage/>
+  return isSignedIn ? <Dashboard/> : <LandingPage />
 }

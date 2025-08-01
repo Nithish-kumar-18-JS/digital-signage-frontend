@@ -16,7 +16,13 @@ import { GlobalDialog } from "@/components/models/GlobalDialog"
 import useDebouncedSearch from "@/hooks/useDebouncedSearch"
 import { toast } from "react-toastify"
 
-export default function ImageLibrary({ params }: { params: { type: string } }) {
+interface ImageLibraryProps {
+  type: string;
+}
+
+export default function ImageLibrary({ type }: ImageLibraryProps) {
+  console.log("type:", type)
+  
   const getImagePreview = (type: string, url: string, name: string) => {
     switch (type) {
       case "IMAGE":
@@ -65,7 +71,7 @@ export default function ImageLibrary({ params }: { params: { type: string } }) {
     const fetchMedia = async () => {
       const token = await getToken()
       setToken(token)
-      const data = await getAllMedia(token, params.type)
+      const data = await getAllMedia(token, type)
       dispatch(setMediaList(data))
     }
   
@@ -125,20 +131,20 @@ export default function ImageLibrary({ params }: { params: { type: string } }) {
       fetchMedia()
     }, [])
   
-    const {handleSearch} = useDebouncedSearch(token!,params.type);
+    const {handleSearch} = useDebouncedSearch(token!, type);
   
     return (
       <div className="p-4">
         <header className="mb-6">
-          <h1 className="text-2xl font-bold capitalize">{params.type} Library</h1>
+          <h1 className="text-2xl font-bold capitalize">{type} Library</h1>
         </header>
         {mediaList.length > 0 && (
           <>
             <div className="flex items-center gap-2 mt-4">
-              <input type="text" onChange={(e) => handleSearch(e.target.value)} placeholder={`Search ${params.type}`} className="w-[80%] p-2 border border-gray-300 rounded" />
+              <input type="text" onChange={(e) => handleSearch(e.target.value)} placeholder={`Search ${type}`} className="w-[80%] p-2 border border-gray-300 rounded" />
               <button className="bg-blue-500 text-white px-2 py-2 rounded">Search</button>
-              <AddMediaModal title={`Add ${params.type}`} fetchMedia={fetchMedia}>
-                Add {params.type}
+              <AddMediaModal title={`Add ${type}`} fetchMedia={fetchMedia}>
+                Add {type}
               </AddMediaModal>
             </div>
             <div className="overflow-x-auto mt-10">
@@ -147,7 +153,7 @@ export default function ImageLibrary({ params }: { params: { type: string } }) {
           </>
         )}
         {mediaList.length === 0 && 
-        <MediaLibraryEmpty type={params.type}/>
+        <MediaLibraryEmpty type={type}/>
         }
       </div>
     )

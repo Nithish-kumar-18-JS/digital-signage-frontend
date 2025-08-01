@@ -2,9 +2,12 @@
 
 import ImageLibrary from '@/components/media/ImageLibrary';
 
-// Using type assertion to bypass the type checking temporarily
-type PageProps = any;
+interface PageProps {
+  params: {
+    type: string;
+  };
+}
 
-export default function Page(props: PageProps) {
-  return <ImageLibrary params={props.params} />;
+export default function Page({ params }: PageProps) {
+  return <ImageLibrary type={params.type} />;
 }

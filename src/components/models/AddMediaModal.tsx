@@ -28,6 +28,7 @@ export function AddMediaModal({
   description,
   data,
   className,
+  type,
   fetchMedia,
 }: {
   children: React.ReactNode
@@ -35,6 +36,7 @@ export function AddMediaModal({
   description?: string
   data?: any
   className?: string
+  type?: string
   fetchMedia?: () => void
 }) {
   interface FormValues {
@@ -73,7 +75,7 @@ export function AddMediaModal({
 
     try {
       setLoading(true)
-      const result = await editMedia(fromData.name, previewUrl!,"IMAGE",token,data.id)
+      const result = await editMedia(fromData.name, previewUrl!,type!,token,data.id)
       dispatch(editMediaData(result))
       reset()
       toast.success(`${title} edited successfully`)
@@ -101,7 +103,7 @@ export function AddMediaModal({
     }
     try {
       setLoading(true)
-      const result = await addMedia(fromData.name, previewUrl!,"IMAGE",token)
+      const result = await addMedia(fromData.name, previewUrl!,type!,token)
       dispatch(addMediaData(result))
       reset()
       toast.success(`${title} added successfully`)

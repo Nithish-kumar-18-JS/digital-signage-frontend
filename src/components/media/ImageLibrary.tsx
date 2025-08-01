@@ -143,7 +143,7 @@ export default function ImageLibrary({ type }: ImageLibraryProps) {
             <div className="flex items-center gap-2 mt-4">
               <input type="text" onChange={(e) => handleSearch(e.target.value)} placeholder={`Search ${type}`} className="w-[80%] p-2 border border-gray-300 rounded" />
               <button className="bg-blue-500 text-white px-2 py-2 rounded">Search</button>
-              <AddMediaModal title={`Add ${type}`} fetchMedia={fetchMedia}>
+              <AddMediaModal type={type} title={`Add ${type}`} fetchMedia={fetchMedia}>
                 Add {type}
               </AddMediaModal>
             </div>

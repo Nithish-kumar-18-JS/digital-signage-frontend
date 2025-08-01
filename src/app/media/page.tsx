@@ -15,9 +15,13 @@ import { ColumnDef } from "@tanstack/react-table"
 import { GlobalDialog } from "@/components/models/GlobalDialog"
 import useDebouncedSearch from "@/hooks/useDebouncedSearch"
 import { toast } from "react-toastify"
-
+import { Button } from "@/components/ui/button"
+import { useRouter } from 'next/navigation'
 
 export default function MediaLibrary() {
+
+  const router = useRouter()
+
   const getImagePreview = (type: string, url: string, name: string) => {
     switch (type) {
       case "IMAGE":
@@ -32,6 +36,8 @@ export default function MediaLibrary() {
         return <img className="w-12 h-12" src={'/content-writing.png'} alt={name} />
     }
   }
+
+
   const mediaList: any = useSelector((state: RootState) => state.media)
   const { getAllMedia , searchMedia , deleteMedia } = mediaApi()
   const { getToken } = useAuth()

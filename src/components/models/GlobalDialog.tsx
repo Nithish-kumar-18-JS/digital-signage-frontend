@@ -29,7 +29,7 @@
         <Dialog>
           <DialogTrigger asChild>
             <Button
-              className="bg-blue-500 text-white px-2 py-3 rounded hover:bg-blue-600"
+              className="bg-blue-500  px-2 py-3 rounded hover:bg-blue-600"
               variant="default"
             >
               {children}

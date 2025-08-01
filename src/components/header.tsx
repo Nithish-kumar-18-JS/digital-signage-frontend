@@ -1,8 +1,9 @@
 'use client'
 
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs"
+import { DarkModeToggle } from "@/components/ui/dark-mode-toggle"
 export default function Header() {
-    return (<header className="flex w-full bg-white justify-end items-center p-4 gap-4 h-16 border border-b-2 border-gray-200 shadow-sm">
+    return (<header className="flex w-full  justify-end items-center p-4 gap-4 h-16 border border-b-2 border-gray-200 dark:border-gray-600 dark:shadow-sm">
         <SignedOut>
           <SignInButton />
           <SignUpButton>
@@ -14,7 +15,10 @@ export default function Header() {
         <SignedIn>
           <div className='w-full flex justify-between items-center'>
             <h1>Logo</h1>
+            <div className="flex gap-2">
+            <DarkModeToggle />
             <UserButton />
+            </div>
           </div>
         </SignedIn>
       </header>)

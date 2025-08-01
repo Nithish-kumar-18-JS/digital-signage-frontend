@@ -1,5 +1,5 @@
 'use client'
-import { Image, Video, Radio, FileText, StickyNote, PlusCircle, Copy } from "lucide-react"
+import { Image, Video, Radio, FileText, StickyNote, PlusCircle, Copy, Table, Table2, GalleryThumbnails, Edit, Trash2 } from "lucide-react"
 import Link from "next/link"
 import MediaLibraryEmpty from "@/components/media/mediaLibraryEmpty"
 import { AddMediaModal } from "@/components/models/AddMediaModal"
@@ -39,6 +39,7 @@ export default function MediaLibrary() {
 
 
   const mediaList: any = useSelector((state: RootState) => state.media)
+  const [view, setView] = useState("table")
   const { getAllMedia , searchMedia , deleteMedia } = mediaApi()
   const { getToken } = useAuth()
   const dispatch = useDispatch()
@@ -166,6 +167,15 @@ export default function MediaLibrary() {
 
   const {handleSearch} = useDebouncedSearch(token!);
 
+  const handleView = (type: string) => {
+    if(type === "table") {
+      setView("table")
+    }
+    else {
+      setView("gallery")
+    }
+  }
+  
   return (
     <div className="p-4">
       <header className="mb-6">
@@ -177,22 +187,69 @@ export default function MediaLibrary() {
           <Link
             key={index}
             href={item.url}
-            className="w-full h-[120px] bg-white shadow-md rounded-lg flex flex-col justify-center items-center p-4 hover:shadow-xl hover:bg-gray-50 transition-all"
+            className="w-full h-[120px] shadow-sm border hover:border-gray-300 dark:hover:border-gray-600 rounded-lg flex flex-col justify-center items-center p-4 hover:shadow-xl"
           >
             <img src={item.image} alt={item.title} className="w-12 h-12 mb-2" />
-            <p className="text-sm font-normal mt-2 text-center">{item.title}</p>
+            <p className="text-sm font-normal mt-2 text-center dark:text-white ">{item.title}</p>
           </Link>
         ))}
       </main>
       {mediaList.length > 0 && (
         <>
           <div className="flex items-center gap-2 mt-5">
-            <input type="text" onChange={(e) => handleSearch(e.target.value)} placeholder="Search" className="w-[80%] p-2 border border-gray-300 rounded" />
-            <button className="bg-blue-500 text-white px-2 py-2 rounded">Search</button>
+            <input type="text" onChange={(e) => handleSearch(e.target.value)} placeholder="Search" className="w-[80%] p-2 border border-gray-300 rounded dark:border-gray-600" />
+            <button className="bg-blue-500  px-2 py-2 rounded">Search</button>
+            <div className="flex items-center gap-2">
+              <Table2 className="w-6 h-6" onClick={() => handleView("table")}/>
+              <GalleryThumbnails className="w-6 h-6" onClick={() => handleView("gallery")}/>
+            </div>
           </div>
-          <div className="overflow-x-auto mt-10">
+          {view === "table" ? <div className="overflow-x-auto mt-10">
             <DataTable columns={columns} data={mediaList} />
+          </div> : 
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mt-10">
+          {mediaList.map((item: any) => (
+          <div
+          key={item.id}
+          className="rounded-2xl shadow-sm  p-6 hover:shadow-lg transition-shadow duration-300 relative mb-16"
+        >
+          <div className="absolute top-4 right-4 flex gap-2">
+            <AddMediaModal type={item.type} fetchMedia={fetchMedia} title={`Edit ${item.type}`} data={item}>
+              <Edit/>
+            </AddMediaModal>
+            <button className="text-gray-500 hover:text-red-600">
+              <Trash2 onClick={(e) => handleDeletMedia(item.id,e)} size={18} />
+            </button>
           </div>
+          <h2 className="text-xl font-semibold text-gray-700 mb-2">{item.name}</h2>
+          <p className="text-gray-500 mb-4">{item.type}</p>
+          {
+            item.type === "IMAGE" ? (
+              <img src={item.url} alt={item.name} className="w-full h-[150px] object-cover" />
+            ) : (
+              <video src={item.url} className="w-full h-[150px] object-cover" />
+            )
+          }
+          {
+            item.type === "AUDIO" ? (
+              <audio src={item.url} className="w-full h-[150px] object-cover" />
+            ) : null
+          }
+          {
+            item.type === "DOCUMENT" ? (
+              <iframe src={item.url} className="w-full h-[150px] object-cover" />
+            ) : null
+          }
+          {
+            item.type === "WEB_CONTENT" ? (
+              <iframe src={item.url} className="w-full h-[150px] object-cover" />
+            ) : null
+          }
+          
+        </div>
+          ))}
+          </div>
+          }
         </>
       )}
       {mediaList.length === 0 && <MediaLibraryEmpty type="image" />}

@@ -1,6 +1,6 @@
 'use client'
 
-import { Copy } from "lucide-react"
+import { Copy, Edit, GalleryThumbnails, Table2, Trash2 } from "lucide-react"
 import MediaLibraryEmpty from "@/components/media/mediaLibraryEmpty"
 import { AddMediaModal } from "@/components/models/AddMediaModal"
 import { DataTable } from "@/components/ui/data-table"
@@ -42,8 +42,17 @@ export default function ImageLibrary({ type }: ImageLibraryProps) {
     const { getToken } = useAuth()
     const dispatch = useDispatch()
     const [token,setToken] = useState<string | null>(null)
+    const [view, setView] = useState("table")
   
   
+    const handleView = (type: string) => {
+      if(type === "table") {
+        setView("table")
+      }
+      else {
+        setView("gallery")
+      }
+    }
   
     type ImageLibrary = {
       id: string
@@ -141,15 +150,61 @@ export default function ImageLibrary({ type }: ImageLibraryProps) {
         {mediaList.length > 0 && (
           <>
             <div className="flex items-center gap-2 mt-4">
-              <input type="text" onChange={(e) => handleSearch(e.target.value)} placeholder={`Search ${type}`} className="w-[80%] p-2 border border-gray-300 rounded" />
-              <button className="bg-blue-500 text-white px-2 py-2 rounded">Search</button>
+              <input type="text" onChange={(e) => handleSearch(e.target.value)} placeholder={`Search ${type}`} className="w-[80%] p-2 border border-gray-300 rounded dark:border-gray-600" />
+              <button className="bg-blue-500 dark:bg-blue-600 dark:text-white px-2 py-2 rounded">Search</button>
               <AddMediaModal type={type} title={`Add ${type}`} fetchMedia={fetchMedia}>
                 Add {type}
               </AddMediaModal>
+              <div className="flex items-center gap-2">
+              <Table2 className="w-6 h-6" onClick={() => handleView("table")}/>
+              <GalleryThumbnails className="w-6 h-6" onClick={() => handleView("gallery")}/>
             </div>
-            <div className="overflow-x-auto mt-10">
+            </div>
+            {view === "table" ? <div className="overflow-x-auto mt-10">
               <DataTable columns={columns} data={mediaList} />
             </div>
+            :
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mt-10">
+              {mediaList.map((item: any) => (
+                <div
+                key={item.id}
+                className="rounded-2xl shadow-sm  p-6 hover:shadow-lg transition-shadow duration-300 relative mb-16"
+              >
+                <div className="absolute top-4 right-4 flex gap-2">
+                  <AddMediaModal type={item.type} fetchMedia={fetchMedia} title={`Edit ${item.type}`} data={item}>
+                    <Edit/>
+                  </AddMediaModal>
+                  <button className="text-gray-500 hover:text-red-600">
+                    <Trash2 onClick={(e) => handleDeletMedia(item.id,e)} size={18} />
+                  </button>
+                </div>
+                <h2 className="text-xl font-semibold text-gray-700 mb-2">{item.name}</h2>
+          {
+            item.type === "IMAGE" ? (
+              <img src={item.url} alt={item.name} className="w-full h-[150px] object-cover" />
+            ) : (
+              <video src={item.url} className="w-full h-[150px] object-cover" />
+            )
+          }
+          {
+            item.type === "AUDIO" ? (
+              <audio src={item.url} className="w-full h-[150px] object-cover" />
+            ) : null
+          }
+          {
+            item.type === "DOCUMENT" ? (
+              <iframe src={item.url} className="w-full h-[150px] object-cover" />
+            ) : null
+          }
+          {
+            item.type === "WEB_CONTENT" ? (
+              <iframe src={item.url} className="w-full h-[150px] object-cover" />
+            ) : null
+          }
+              </div>
+            ))}
+            </div> 
+            }
           </>
         )}
         {mediaList.length === 0 && 

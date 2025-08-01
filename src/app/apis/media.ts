@@ -65,9 +65,10 @@ const deleteMedia = async (id: string,token: string | null) => {
     }
 };
 
-const searchMedia = async (token: string | null,search?: string,type?: string) => {
+const searchMedia = async (token: string | null,search?: string,type = "") => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/media/search-media?search=${search}&type=${type}x`, {
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/media/search-media?search=${search}&type=${type}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

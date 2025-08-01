@@ -12,6 +12,8 @@ import Header from '@/components/header'
 import { ReduxProvider } from '@/app/redux-provider'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import Footer from '@/components/footer'
+import { ThemeProvider } from '@/components/theme-provider'
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -37,6 +39,7 @@ export default function RootLayout({
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>          
           {/* Fixed Header */}
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ReduxProvider>
           <div className='w-full fixed top-0 z-50 h-16'>
             <Header />
@@ -53,10 +56,12 @@ export default function RootLayout({
                 </SignedIn>
               </main>
             </div>
+            <Footer/>
           </SidebarProvider> 
           </div>
           <ToastContainer/>
           </ReduxProvider>
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

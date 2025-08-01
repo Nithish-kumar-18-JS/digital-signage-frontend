@@ -141,7 +141,7 @@ export function AddMediaModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          className={cn("bg-blue-500 text-white px-2 py-3 z-10 rounded hover:bg-blue-600",className)}
+          className={cn("bg-blue-500 dark:bg-blue-600 dark:text-white px-2 py-3 z-10 rounded hover:bg-blue-600",className)}
           variant="default"
           onClick={() => setOpen(true)}
         >

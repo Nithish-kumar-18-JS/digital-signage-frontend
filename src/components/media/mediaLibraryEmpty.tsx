@@ -21,6 +21,7 @@ export default function MediaLibraryEmpty({type}: {type: string}) {
       </p>
 
       <AddMediaModal
+        type={type}
         title={`Add ${type}`}
         description={`Add ${type} to your library`}
         className="inline-flex items-center gap-2 bg-[#fd5050] text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-[#5939d1] transition"

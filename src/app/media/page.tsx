@@ -115,7 +115,7 @@ export default function MediaLibrary() {
       header: "Actions",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <AddMediaModal fetchMedia={fetchMedia} title={`Edit ${row.original.type}`} data={row.original}>
+          <AddMediaModal type={row.original.type} fetchMedia={fetchMedia} title={`Edit ${row.original.type}`} data={row.original}>
             Edit
           </AddMediaModal>
           <GlobalDialog
@@ -195,7 +195,7 @@ export default function MediaLibrary() {
           </div>
         </>
       )}
-      {mediaList.length === 0 && <MediaLibraryEmpty type="Image" />}
+      {mediaList.length === 0 && <MediaLibraryEmpty type="image" />}
     </div>
   )
 }

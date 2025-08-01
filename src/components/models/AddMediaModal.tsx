@@ -36,7 +36,7 @@ export function AddMediaModal({
   description?: string
   data?: any
   className?: string
-  type?: string
+  type: string
   fetchMedia?: () => void
 }) {
   interface FormValues {
@@ -59,7 +59,6 @@ export function AddMediaModal({
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDialogElement>(null)
   const form = useForm<FormValues>()
-
   const editMediaSubmit = async (fromData: FormValues) => {
     const token = await getToken()
     const file = fromData.file[0] // ✅ extract the first file

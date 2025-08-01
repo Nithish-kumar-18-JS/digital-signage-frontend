@@ -110,7 +110,7 @@ export default function ImageLibrary({ type }: ImageLibraryProps) {
         header: "Actions",
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <AddMediaModal title={`Edit ${row.original.type}`} data={row.original} fetchMedia={fetchMedia}>
+            <AddMediaModal type={row.original.type} title={`Edit ${row.original.type}`} data={row.original} fetchMedia={fetchMedia}>
               Edit
             </AddMediaModal>
             <GlobalDialog

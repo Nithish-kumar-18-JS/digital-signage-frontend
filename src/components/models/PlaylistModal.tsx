@@ -41,59 +41,81 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { GripVertical, Plus } from 'lucide-react'
 import { toast } from 'react-toastify'
 import clsx from 'clsx'
+import { addPlaylist} from '@/app/apis/playlist'
+import { addPlaylistData } from '@/lib/redux/slice/playlistSlice'
+import { useAuth } from '@clerk/nextjs'
+import { useDispatch } from 'react-redux'
+import { User } from '@clerk/nextjs/server'
 
 export type Media = {
   id: number
-  title: string
-  type: 'audio' | 'video' | 'document' | 'webpage' | 'image'
-  thumbnailUrl?: string
+  name: string
+  type: 'VIDEO' | 'IMAGE' | 'AUDIO' | 'DOCUMENT' | 'HTML'
+  url?: string
 }
 
-export type Playlist = {
-  id?: number
-  title: string
+export interface Playlist {
+  id?: string
+  name: string
   description: string
-  mediaIds: number[]
+  createdById?: string
+  createdAt?: string
+  updatedAt?: string
+  createdBy?: User
+  items?: PlaylistItem[]
+  screenLinks?: PlaylistOnScreen[]
+}
+
+export interface PlaylistItem {
+  id?: string
+  playlistId: string
+  mediaId: string
+  position: number
+  durationOverride: number
+  transitionEffect: string
+}
+
+export interface PlaylistOnScreen {
+  id?: string
+  playlistId: string
+  screenId: string
+  position: number
+  durationOverride: number
+  transitionEffect: string
 }
 
 type FormValues = {
-  title: string
+  name: string
   description: string
+  items: PlaylistItem[]
 }
 
 type PlaylistModalProps = {
   isEdit?: boolean
-  defaultValues?: Partial<Playlist>
-  onSuccess?: (playlist: Playlist) => void
+  defaultValues?: Partial<Playlist> 
   mediaList?: Media[]
 }
-
-const defaultMediaList: Media[] = [
-  { id: 1, title: 'Welcome Video', type: 'video', thumbnailUrl: '/thumbs/welcome.jpg' },
-  { id: 2, title: 'Promo Banner', type: 'image', thumbnailUrl: '/thumbs/banner.jpg' },
-  { id: 3, title: 'Company Profile PDF', type: 'document' },
-  { id: 4, title: 'Lobby Audio Loop', type: 'audio' },
-  { id: 5, title: 'Main Website', type: 'webpage' },
-]
 
 export function PlaylistModal({
   isEdit = false,
   defaultValues,
-  onSuccess,
-  mediaList = defaultMediaList,
+  mediaList,
 }: PlaylistModalProps) {
   const [open, setOpen] = useState(false)
-  const [selectedMediaIds, setSelectedMediaIds] = useState<number[]>(defaultValues?.mediaIds ?? [])
+  const [selectedMediaIds, setSelectedMediaIds] = useState<number[]>(defaultValues?.items?.map((item) => Number(item)) ?? [])
   const [isSubmitting, setIsSubmitting] = useState(false)
-
+  const { getToken } = useAuth()
+  const dispatch = useDispatch()
+  const [token, setToken] = useState<string | null>(null)
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
-      title: defaultValues?.title ?? '',
+      name: defaultValues?.name ?? '',
       description: defaultValues?.description ?? '',
+      items: defaultValues?.items ?? [],
     },
   })
 
@@ -105,6 +127,14 @@ export function PlaylistModal({
     )
   }
 
+  useEffect(() => {
+    const fetchToken = async () => {
+      const token = await getToken()
+      setToken(token)
+    }
+    fetchToken()
+  }, [getToken])
+
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     if (selectedMediaIds.length === 0) {
       toast.error('Please select at least one media item')
@@ -115,17 +145,17 @@ export function PlaylistModal({
 
     try {
       const payload: Playlist = {
-        title: data.title.trim(),
+        name: data.name.trim(),
         description: data.description.trim(),
-        mediaIds: selectedMediaIds,
+        items: data.items,
         ...(isEdit && defaultValues?.id && { id: defaultValues.id }),
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      onSuccess?.(payload)
-      setOpen(false)
-      reset()
+     
+      await addPlaylist(payload, token)
+      dispatch(addPlaylistData(payload as any))
+      // setOpen(false)
+      // reset()
       toast.success(`Playlist ${isEdit ? 'updated' : 'created'} successfully`)
     } catch (error) {
       console.error('Error saving playlist:', error)
@@ -163,13 +193,13 @@ export function PlaylistModal({
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="title">Title *</Label>
+              <Label htmlFor="name">Name *</Label>
               <Input
-                id="title"
-                {...register('title', { required: 'Title is required' })}
-                placeholder="Enter playlist title"
+                id="name"
+                {...register('name', { required: 'Name is required' })}
+                placeholder="Enter playlist name"
               />
-              {errors.title && <p className="text-sm text-red-500">{errors.title.message}</p>}
+              {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
             </div>
 
             <div className="grid gap-2">
@@ -188,7 +218,7 @@ export function PlaylistModal({
                 <CommandEmpty>No media found.</CommandEmpty>
                 <CommandGroup>
                   <ScrollArea className="h-40 rounded-md border p-1  dark:bg-zinc-900">
-                    {mediaList.map((media) => (
+                    {mediaList?.map((media) => (
                       <CommandItem
                         key={media.id}
                         onSelect={() => toggleMedia(media.id)}
@@ -199,10 +229,10 @@ export function PlaylistModal({
                             : ''
                         )}
                       >
-                        {media.thumbnailUrl && (media.type === 'video' || media.type === 'image') ? (
+                        {media.url && (media.type === 'VIDEO' || media.type === 'IMAGE') ? (
                           <img
-                            src={media.thumbnailUrl}
-                            alt={media.title}
+                            src={media.url}
+                            alt={media.name}
                             className="w-10 h-10 object-cover rounded-md border"
                           />
                         ) : (
@@ -211,7 +241,7 @@ export function PlaylistModal({
                           </div>
                         )}
                         <div className="flex flex-col text-left">
-                          <span className="font-medium truncate">{media.title}</span>
+                          <span className="font-medium truncate">{media.name}</span>
                           <span className="text-xs text-muted-foreground capitalize">{media.type}</span>
                         </div>
                       </CommandItem>
@@ -236,7 +266,7 @@ export function PlaylistModal({
                     >
                       <div className="flex flex-col gap-2">
                         {selectedMediaIds.map((id) => {
-                          const media = mediaList.find((m) => m.id === id)
+                          const media = mediaList?.find((m) => m.id === id)
                           return media ? (
                             <SortableItem key={id} media={media} />
                           ) : null
@@ -302,7 +332,10 @@ function SortableItem({ media }: { media: Media }) {
         <GripVertical size={18} />
       </div>
       <div className="flex-1 truncate text-sm">
-        <span className="font-medium">{media.title}</span>{' '}
+        <div className='flex items-center gap-2'>
+        <span className="font-medium">{media.name}</span>{' '}
+        <img src={media.url} alt={media.name} className="w-10 h-10 object-cover rounded-md border" /> 
+        </div>
         <span className="text-xs text-muted-foreground capitalize">({media.type})</span>
       </div>
     </div>

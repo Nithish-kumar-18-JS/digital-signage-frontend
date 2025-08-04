@@ -28,7 +28,7 @@ const addMedia = async (name: string, image:string,type: string,token: string | 
 
 const getAllMedia = async (token: string | null,type?: string) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/media/all-media?type=${type}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/media/all-media?${type ? `type=${type}` : ""}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

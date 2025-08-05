@@ -45,8 +45,8 @@ import { useEffect, useState } from 'react'
 import { GripVertical, Plus } from 'lucide-react'
 import { toast } from 'react-toastify'
 import clsx from 'clsx'
-import { addPlaylist} from '@/app/apis/playlist'
-import { addPlaylistData } from '@/lib/redux/slice/playlistSlice'
+import { addPlaylist, updatePlaylist} from '@/app/apis/playlist'
+import { addPlaylistData, editPlaylistData } from '@/lib/redux/slice/playlistSlice'
 import { useAuth } from '@clerk/nextjs'
 import { useDispatch } from 'react-redux'
 import { User } from '@clerk/nextjs/server'
@@ -66,7 +66,7 @@ export interface Playlist {
   createdAt?: string
   updatedAt?: string
   createdBy?: User
-  items?: PlaylistItem[]
+  items?: number[]
   screenLinks?: PlaylistOnScreen[]
 }
 
@@ -91,16 +91,18 @@ export interface PlaylistOnScreen {
 type FormValues = {
   name: string
   description: string
-  items: PlaylistItem[]
+  items: number[]
 }
 
 type PlaylistModalProps = {
+  children: React.ReactNode
   isEdit?: boolean
   defaultValues?: Partial<Playlist> 
   mediaList?: Media[]
 }
 
 export function PlaylistModal({
+  children,
   isEdit = false,
   defaultValues,
   mediaList,
@@ -147,16 +149,23 @@ export function PlaylistModal({
       const payload: Playlist = {
         name: data.name.trim(),
         description: data.description.trim(),
-        items: data.items,
+        items: selectedMediaIds,
         ...(isEdit && defaultValues?.id && { id: defaultValues.id }),
       }
-
-     
+      console.log("payload",payload)
+     if(!isEdit){
       await addPlaylist(payload, token)
       dispatch(addPlaylistData(payload as any))
       // setOpen(false)
       // reset()
       toast.success(`Playlist ${isEdit ? 'updated' : 'created'} successfully`)
+     }else{
+      await updatePlaylist(payload, token)
+      dispatch(editPlaylistData(payload as any))
+      // setOpen(false)
+      // reset()
+      toast.success(`Playlist ${isEdit ? 'updated' : 'created'} successfully`)
+     }
     } catch (error) {
       console.error('Error saving playlist:', error)
       toast.error('Failed to save playlist. Please try again.')
@@ -177,10 +186,7 @@ export function PlaylistModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default" className="gap-2">
-          <Plus size={16} />
-          {isEdit ? 'Edit Playlist' : 'Add Playlist'}
-        </Button>
+        {children}
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg max-h-[calc(100vh-160px)] overflow-y-auto mb-5">
         <form onSubmit={handleSubmit(onSubmit)}>
